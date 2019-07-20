@@ -1,0 +1,46 @@
+/******************************************************
+Reverse Integer
+
+Reverse digits of an integer.
+Example1: x = 123, return 321
+Example2: x = -123, return -321
+Have you thought about this?
+Here are some good questions to ask before coding. Bonus points for you if you have already thought through this!
+If the integer's last digit is 0, what should the output be? ie, cases such as 10, 100.
+Did you notice that the reversed integer might overflow? Assume the input is a 32-bit integer, then the reverse of 1000000003 overflows. How should you handle such cases?
+For the purpose of this problem, assume that your function returns 0 when the reversed integer overflows.
+
+Solution
+****************************************************/
+
+public class ReverseInteger{
+
+//1. Convert Integer to String: Time ~ O(N), Space ~ O(N) 
+
+public int reverse(int x) {
+    int val = 0, start = 0, sign = 1;
+    String xs = Integer.toString(x);
+    if (xs.charAt(0) == '-') {
+        start = 1;
+        sign = -1;
+    }
+    for (int i = 1; i <= xs.length() - start; i++) {
+        if (val > Integer.MAX_VALUE / 10 && i <= xs.length() - start)    return 0;
+        val = val * 10 + Character.getNumericValue(xs.charAt(xs.length() - i));
+    }
+    return val * sign;
+}
+
+//2. Use Math: Time ~ O(N), Space ~ O(1) 
+
+public int reverse(int x) {
+    int val = 0, num = x;
+    while (num != 0) {
+        if (Math.abs(val) > Integer.MAX_VALUE / 10)   return 0;
+        val = val * 10 + num % 10;
+        num = num / 10;
+    }
+    return val;
+}
+
+}

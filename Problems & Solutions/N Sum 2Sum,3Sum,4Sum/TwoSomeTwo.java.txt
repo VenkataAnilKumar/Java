@@ -1,0 +1,26 @@
+/*...................................
+Two Sum Two
+Given an array of integers that is already sorted in ascending order, find two numbers such that they add up to a specific target number.
+The function twoSum should return indices of the two numbers such that they add up to the target, where index1 must be less than index2. Please note that your returned answers (both index1 and index2) are not zero-based.
+You may assume that each input would have exactly one solution.
+
+Solution
+
+wo pointers: Time ~ O (N), Space ~ O (1)
+Two clamp force, more than the target is hi -, less than the target is lo ++.
+........................................*/
+
+public Class twoSumTwo{
+	public int[] twoSum(int[] numbers, int target) {
+    		// Assume input array is sorted
+    		int N = numbers.length, lo = 0, hi = N - 1;
+    		while (lo < hi) {
+        		int sum = numbers[lo] + numbers[hi];
+        		if (sum > target)       hi--;
+        		else if (sum < target)  lo++;
+    	    		else                    return new int[] {lo + 1, hi + 1};
+    		}
+    		throw new IllegalArgumentException("No two sum solution");
+	}
+}
+

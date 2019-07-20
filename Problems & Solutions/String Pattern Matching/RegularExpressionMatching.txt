@@ -1,0 +1,118 @@
+
+/****************************************************
+Regular Expression Matching
+
+Implement regular expression matching with support for '.' and '*'.
+'.' Matches any single character.
+'*' Matches zero or more of the preceding element.
+
+The matching should cover the entire input string (not partial).
+
+The function prototype should be:
+bool isMatch(const char *s, const char *p)    (p is the regular expression)
+
+Some examples:
+isMatch("aa","a") ? false
+isMatch("aa","aa") ? true
+isMatch("aaa","aa") ? false
+isMatch("aa", "a*") ? true
+isMatch("aa", ".*") ? true
+isMatch("ab", ".*") ? true
+isMatch("aab", "c*a*b") ? true
+
+Solution
+
+*****************************************************/
+
+public class RegularExpressionMatching{
+
+//1. DFS: Time ~ O(?) 
+
+public boolean isMatch(String s, String p) {
+    if (p.length() == 0)    return s.length() == 0;
+    
+    if (p.length() == 1 || p.charAt(1) != '*') { // s[i] == p[j] || p[j] == '.' must hold for matching
+        if (s.length() > 0 && (p.charAt(0) == s.charAt(0) || p.charAt(0) == '.'))
+            return isMatch(s.substring(1), p.substring(1));
+        else    return false;
+    } else { // p.charAt(1) == '*'
+        while (s.length() > 0 && (p.charAt(0) == s.charAt(0) || p.charAt(0) == '.')) {
+            // 1st run: * is deletion, >= 2nd run: * is repetition; there is redundancy here!!
+            if (isMatch(s, p.substring(2))) return true; 
+            s = s.substring(1);
+        }
+        return isMatch(s, p.substring(2));
+    }
+}
+
+/*******************************************
+2. 2-d DP: Time ~ O(SP), Space ~ O(SP) 
+Let d(i, j) = true if s[0, i - 1] matches p[0, j - 1] (i, j are string lengths).
+Initialize:
+d(0, 0) = true, 
+d(0, j): if p[j - 1] == '*', d(j) = d(0, j - 2) // deletion; else d(j) = false.
+Fill up the table:
+if         p[j - 1] matches s[i - 1],   d(i, j) = d(i - 1, j - 1);
+else if  p[j - 1] == '*',  two cases:
+       if  p[j - 2] matches s[i - 1],   d(i, j) = deletion: d(i, j - 2) || repetition: d(i - 1, j);
+       else                                        d(i, j) = deletion: d(i, j - 2);
+Note: “p[j] matches s[i]” means p[j] == s[i] || p[j] == '.'.
+Return d(M, N).
+****************************************************/
+
+public boolean isMatch(String s, String p) {
+    int lenS = s.length(), lenP = p.length();
+    boolean[][] d = new boolean[lenS + 1][lenP + 1]; // i, j are the lengths of s[0..i-1] and p[0..j-1]
+    d[0][0] = true;
+    // initialize the first row
+    for (int j = 1; j <= lenP; j++) {
+        if (p.charAt(j - 1) == '*') d[0][j] = d[0][j - 2]; // * is deletion
+    }
+    // fill up the table
+    for (int i = 1; i <= lenS; i++) {
+        for (int j = 1; j <= lenP; j++) {
+            if (p.charAt(j - 1) == s.charAt(i - 1) || p.charAt(j - 1) == '.')
+                d[i][j] = d[i - 1][j - 1];
+            else if (p.charAt(j - 1) == '*') {
+                if (p.charAt(j - 2) == s.charAt(i - 1) || p.charAt(j - 2) == '.')
+                    d[i][j] = d[i][j - 2] || d[i - 1][j]; // * is deletion or repetition
+                else
+                    d[i][j] = d[i][j - 2]; // * is deletion
+            }
+        }
+    }
+    return d[lenS][lenP];
+}
+
+//3. 1-d DP Time ~ O(SP), Space ~ O(P) 
+
+public boolean isMatch(String s, String p) {
+    int lenS = s.length(), lenP = p.length();
+    boolean[] d = new boolean[lenP + 1];
+    d[0] = true;
+    // initialize the first row
+    for (int j = 1; j <= lenP; j++) {
+        if (p.charAt(j - 1) == '*')
+            d[j] = d[j - 2]; // * is deletion
+    }
+    // fill up the table
+    for (int i = 1; i <= lenS; i++) {
+        boolean prev = d[0];    // prev stores d[i-1][j-1]
+        d[0] = false;   // add this line for 1D reduction!!
+        for (int j = 1; j <= lenP; j++) {
+            boolean curr = d[j]; // curr stores d[i-1][j]
+            if (p.charAt(j - 1) == s.charAt(i - 1) || p.charAt(j - 1) == '.')
+                d[j] = prev;
+            else if (p.charAt(j - 1) == '*') {
+                if (p.charAt(j - 2) == s.charAt(i - 1) || p.charAt(j - 2) == '.')
+                    d[j] = d[j - 2] || curr; // * is deletion or repetition
+                else
+                    d[j] = d[j - 2]; // * is deletion
+            } else
+                d[j] = false; // add this line for 1D reduction!!
+            prev = curr;
+        }
+    }
+    return d[lenP];
+}
+}

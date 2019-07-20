@@ -1,0 +1,72 @@
+/*.............................................................
+Two Sum One
+
+Given an array of integers, find two numbers such that they add up to a specific target number.
+The function twoSum should return indices of the two numbers such that they add up to the target, where index1 must be less than index2. Please note that your returned answers (both index1 and index2) are not zero-based.
+You may assume that each input would have exactly one solution.
+Input: numbers={2, 7, 11, 15}, target=9
+Output: index1=1, index2=2
+
+Solution:
+
+
+public class TwoSumOne {
+
+/*1. Two pointers: Time ~ O (NlogN), Space ~ O (N)
+Two clamp force, more than the target is hi -, less than the target is lo ++.
+Find lo and hi need to find the corresponding array in the corresponding index, pay attention to the output in ascending order.
+Note: This question requires the return index, so you can not directly sort the original array.*/
+
+
+	public int[] twoSumOne(int[] numbers, int target) {
+    	int[] index = new int[2];
+    	int N = numbers.length, lo = 0, hi = N-1;
+    	int[] numbersSort = Arrays.copyOf(numbers, numbers.length);
+    	// sort the array - O(NlogN)
+    	Arrays.sort(numbersSort);
+    	// search the sum - O(N)
+    	for (int i = 0; i < N; i++) {
+        	int sum = numbersSort[lo] + numbersSort[hi];
+        	if (sum > target)           hi = hi - 1;
+        	else if (sum < target)      lo = lo + 1;
+        	else                        break;
+    	}
+    	// search index - O(2N)
+    	for (int i = 0; i < N; i++)
+        if (numbers[i] == numbersSort[lo])  index[0] = i;
+    	for (int i = 0; i < N; i++)
+        	if (numbers[i] == numbersSort[hi] && i != index[0]) index[1] = i;
+    		// put index in ascending order
+    		if (index[0] > index[1]) {
+       	 		int temp = index[0];
+       	 		index[0] = index[1];
+        		index[1] = temp;
+    	}
+    	index[0] = index[0] + 1;
+    	index[1] = index[1] + 1;
+    	return index;
+	}
+
+/*
+2. HashTable: Time ~ O(N), Space ~ O(N) 
+
+With a Hash table, key stored num [i], value stored index i.
+After encountering num [i], find the corresponding difference in the Hash table contains containsKey (target - num [i]), if not exist will num [i] into the Hash table.*/
+
+	public int[] twoSum(int[] numbers, int target) {
+    	HashMap<Integer, Integer> h = new HashMap<Integer, Integer>();  // key - number, value - index
+    	for (int i = 0; i < numbers.length; i++) {
+        	int key1 = numbers[i];
+        	int key2 = target - numbers[i];
+        	if (h.containsKey(key2)) {
+        	    return new int[] {h.get(key2) + 1, i + 1};
+        	}
+        	h.put(key1, i);
+    	}
+    	throw new IllegalArgumentException("No two sum solution");
+	}
+}
+
+
+
+

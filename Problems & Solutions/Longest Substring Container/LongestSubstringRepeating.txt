@@ -1,0 +1,46 @@
+/************************************************
+Longest Substring Without Repeating Characters (All Distinct)
+
+Given a string, find the length of the longest substring without repeating characters. For example, the longest substring without repeating letters for "abcabcbb" is "abc", which the length is 3. For "bbbbb" the longest substring is "b", with the length of 1.
+
+Solution
+************************************************/
+
+public LongestSubstringRepeating{
+
+/************************************************
+1. Two pointer + Hash Table: Time ~ O(2N), Space ~ O(1) 
+start - the start index;
+i - the curr (end) index.
+Move j from 0 to N - 1, update the maxLen = max{i - start + 1, maxLen} at every step.
+If we find a visited character (exist[c] == true), then shrink start pointer i until find the same character c, and then update the maxLen.
+************************************************/
+public int lengthOfLongestSubstring(String s) {
+    boolean[] exist = new boolean[256]; // ASCII
+    int start = 0, maxLen = 0;
+    for (int i = 0; i < s.length(); i++) {
+        while (exist[s.charAt(i)])
+            exist[s.charAt(start++)] = false;
+        exist[s.charAt(i)] = true;
+        maxLen = Math.max(i - start + 1, maxLen);
+    }
+    return maxLen;
+}
+
+/************************************************
+2. Hash Table: Time ~ O(N), Space ~ O(1)
+************************************************/
+
+public int lengthOfLongestSubstring(String s) {
+    int[] charMap = new int[256]; // ASCII
+    Arrays.fill(charMap, -1);
+    int start = 0, maxLen = 0;
+    for (int i = 0; i < s.length(); i++) {
+        char c = s.charAt(i);
+        if (charMap[c] >= start)    start = charMap[c] + 1; // exist a repeat of s.charAt(j) from i to j
+        charMap[c] = i;
+        maxLen = Math.max(maxLen, i - start + 1);
+    }
+    return maxLen;
+}
+}
